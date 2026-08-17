@@ -1,0 +1,23 @@
+{
+  "name": "quotr-proxy",
+  "version": "0.1.0",
+  "description": "Quotr MVP — metered LLM quota exchange proxy",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts",
+    "db:migrate": "bun run supabase/migrate.ts"
+  },
+  "dependencies": {
+    "hono": "^4.4.0",
+    "@supabase/supabase-js": "^2.43.0",
+    "@upstash/redis": "^1.31.0",
+    "@upstash/ratelimit": "^2.0.0",
+    "stripe": "^15.12.0",
+    "nanoid": "^5.0.7",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  }
+}
