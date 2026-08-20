@@ -80,18 +80,22 @@ export async function handleStripeWebhook(c: Context): Promise<Response> {
 //   4. We credit their balance.
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session): Promise<void> {
-  const userId = session.metadata?.quotr_user_id
+  // Try session metadata first, then payment link metadata
+  let userId = session.metadata?.tokenex_user_id
+
+  // If not on session, fetch from the payment link directly
+  if (!userId && session.payment_link) {
+    const paymentLink = await stripe.paymentLinks.retrieve(session.payment_link as string)
+    userId = paymentLink.metadata?.tokenex_user_id
+  }
+
   if (!userId) {
-    console.warn('[stripe] checkout.session.completed missing quotr_user_id metadata', session.id)
+    console.warn('[stripe] Missing tokenex_user_id in both session and payment link metadata', session.id)
     return
   }
 
-  // Amount is in smallest currency unit (cents for USD)
   const amountCents = session.amount_total
-  if (!amountCents || amountCents <= 0) {
-    console.warn('[stripe] Zero or missing amount in session', session.id)
-    return
-  }
+  if (!amountCents || amountCents <= 0) return
 
   await creditBalance(userId, amountCents, session.payment_intent as string ?? session.id)
 
