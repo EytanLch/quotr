@@ -17,6 +17,15 @@ import { config } from './config.ts'
 
 const app = new Hono()
 
+// CORS — allow requests from Vercel frontend
+app.use('*', async (c, next) => {
+  await next()
+  c.header('Access-Control-Allow-Origin', 'https://quotr-exchange.vercel.app')
+  c.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+  c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+})
+
+app.options('*', (c) => c.text('', 204))
 // ─── Health ───────────────────────────────────────────────────
 app.get('/',       (c) => c.json({ service: 'Quotr', version: '0.2.0', status: 'operational' }))
 app.get('/health', (c) => c.json({ ok: true, ts: new Date().toISOString() }))
