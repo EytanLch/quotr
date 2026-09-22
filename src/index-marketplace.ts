@@ -13,6 +13,10 @@ import {
   sellerReverify,
   getMarket,
 } from './seller.ts'
+
+import { getAccount } from './account.ts'
+import { handleStripeWebhookV2 } from './webhook-v2.ts'
+
 import { config } from './config.ts'
 
 const app = new Hono()
@@ -29,6 +33,7 @@ app.options('*', (c) => c.text('', 204))
 // ─── Health ───────────────────────────────────────────────────
 app.get('/',       (c) => c.json({ service: 'Quotr', version: '0.2.0', status: 'operational' }))
 app.get('/health', (c) => c.json({ ok: true, ts: new Date().toISOString() }))
+app.get('/v1/account', getAccount)
 
 // ─── Anthropic-compatible proxy ───────────────────────────────
 app.post('/v1/messages', proxyMessagesMarketplace)
@@ -49,7 +54,7 @@ app.get('/sellers/:id/listings',       sellerGetListings)
 app.post('/sellers/:id/reverify',      sellerReverify)
 
 // ─── Stripe webhook ───────────────────────────────────────────
-app.post('/webhooks/stripe', handleStripeWebhook)
+app.post('/webhooks/stripe', handleStripeWebhookV2)
 
 // ─── Admin ────────────────────────────────────────────────────
 app.post('/admin/users',            adminCreateUser)
