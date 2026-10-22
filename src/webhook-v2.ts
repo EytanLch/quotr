@@ -176,7 +176,7 @@ client = anthropic.Anthropic(
       headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         from:    'Quotr <keys@quotr.io>',
-        to:      [email],
+        to: [process.env.RESEND_TEST_EMAIL ?? email],
         subject: `Your Quotr API key — $${dollars} balance ready`,
         html,
       })
