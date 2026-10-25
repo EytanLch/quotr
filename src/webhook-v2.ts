@@ -171,18 +171,28 @@ client = anthropic.Anthropic(
 </body></html>`
 
   try {
-    await fetch('https://api.resend.com/emails', {
+    const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
+      headers: { 
+        'Authorization': `Bearer ${resendKey}`, 
+        'Content-Type': 'application/json' 
+      },
       body: JSON.stringify({
-        from:    'Quotr <keys@quotr.io>',
-        to: ['lellouche.eytan@gmail.com'],
+        from:    'onboarding@resend.dev',
+        to:      [process.env.RESEND_TEST_EMAIL ?? email],
         subject: `Your Quotr API key — $${dollars} balance ready`,
         html,
       })
     })
-    console.log(`[email] Delivered to ${email}`)
+    
+    const result = await res.json()
+    
+    if (!res.ok) {
+      console.error('[email] Resend rejected:', JSON.stringify(result))
+    } else {
+      console.log(`[email] Delivered to ${email} — id: ${result.id}`)
+    }
   } catch (err) {
-    console.error('[email] Failed:', err)
+    console.error('[email] Failed:', String(err))
   }
 }
